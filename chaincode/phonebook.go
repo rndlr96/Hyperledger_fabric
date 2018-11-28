@@ -35,14 +35,13 @@ func (s *SmartContract) Invoke(stub shim.ChaincodeStubInterface) peer.Response {
     return s.createMember(stub, args)
   } else if function == "queryAllMembers" {
     return s.queryAllMembers(stub)
+  } else if function == "changeNumber" {
+    return s.changeNumber(stub, args)
+  } else if function == "changeMail" {
+    return s.changeNumber(stub, args)
+  } else if function == "changeCompany" {
+    return s.changeNumber(stub, args)
   }
-  // } else if function == "changeNumber" {
-  //   return s,changeNumber(stub, args)
-  // } else if function == "changeMail" {
-  //   return s,changeNumber(stub, args)
-  // } else if function == "changeCompamy" {
-  //   return s,changeNumber(stub, args)
-  // }
 
   return shim.Error("Invalid Smart Contract function name")
 }
@@ -132,11 +131,65 @@ func (s *SmartContract) queryAllMembers (stub shim.ChaincodeStubInterface) peer.
     buffer.WriteString("}")
     bArrayMemberAlreadyWritten = true
   }
-  buffer.WriteString("]")
+  buffer.WriteString("]\n")
 
   fmt.Printf("- queryAllMembers:\n%s\n", buffer.String())
 
   return shim.Success(buffer.Bytes())
+}
+
+func (s *SmartContract) changeNumber(stub shim.ChaincodeStubInterface, args []string) peer.Response {
+
+  if len(args) != 2 {
+    return shim.Error("Incorrect number of arguments. Expecting 2")
+  }
+
+  memberAsBytes, _ := stub.GetState(args[0])
+  member := Member{}
+
+  json.Unmarshal(memberAsBytes, &member)
+  member.Number = args[1]
+
+  memberAsBytes, _ = json.Marshal(member)
+  stub.PutState(args[0], memberAsBytes)
+
+  return shim.Success(nil)
+}
+
+func (s *SmartContract) changeMail(stub shim.ChaincodeStubInterface, args []string) peer.Response {
+
+  if len(args) != 2 {
+    return shim.Error("Incorrect number of arguments. Expecting 2")
+  }
+
+  memberAsBytes, _ := stub.GetState(args[0])
+  member := Member{}
+
+  json.Unmarshal(memberAsBytes, &member)
+  member.Mail = args[1]
+
+  memberAsBytes, _ = json.Marshal(member)
+  stub.PutState(args[0], memberAsBytes)
+
+  return shim.Success(nil)
+}
+
+func (s *SmartContract) changeCompany(stub shim.ChaincodeStubInterface, args []string) peer.Response {
+
+  if len(args) != 2 {
+    return shim.Error("Incorrect number of arguments. Expecting 2")
+  }
+
+  memberAsBytes, _ := stub.GetState(args[0])
+  member := Member{}
+
+  json.Unmarshal(memberAsBytes, &member)
+  member.Company = args[1]
+
+  memberAsBytes, _ = json.Marshal(member)
+  stub.PutState(args[0], memberAsBytes)
+
+  return shim.Success(nil)
 }
 
 func main() {
